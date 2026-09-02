@@ -1,0 +1,70 @@
+{
+  "name": "stl2step-ui",
+  "version": "0.6.2",
+  "description": "Unofficial portable Windows GUI for BlinkingSun/stl2step",
+  "main": "main.js",
+  "author": "WadE86ma",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "dependencies": {
+    "three": "0.149.0"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.stl2step.gui",
+    "productName": "STL2STEP GUI",
+    "asar": true,
+    "files": [
+      "**/*",
+      "!*.bak",
+      "!README-BUILD-WINDOWS.md",
+      "!scripts/**",
+      "!.github/**",
+      "!bin/**",
+      "!licenses/**"
+    ],
+    "extraResources": [
+      {
+        "from": "bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "licenses",
+        "to": "licenses",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "artifactName": "STL2STEP-GUI-${version}.exe"
+    },
+    "portable": {
+      "artifactName": "STL2STEP-GUI-${version}.exe"
+    }
+  },
+  "allowScripts": {
+    "electron@38.8.6": true,
+    "electron-winstaller@5.4.0": true
+  },
+  "homepage": "https://github.com/wade86ma/stl2step-gui",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wade86ma/stl2step-gui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wade86ma/stl2step-gui/issues"
+  }
+}

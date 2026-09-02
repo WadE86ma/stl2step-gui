@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';">
+<title>STL2STEP GUI</title>
+<link rel="stylesheet" href="styles.css">
+<script src="node_modules/three/build/three.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M4 8 12 3l8 5-8 5-8-5Zm0 5 8 5 8-5M4 17l8 5 8-5"/></svg></div><div><b>STL2STEP GUI</b><span>STL → STEP Converter</span></div></div>
+  <div class="top-actions"><button id="addFiles">＋ Add Files</button><button id="clear">Clear</button><button id="helpButton" class="icon" title="Help">?</button><button id="settingsButton" class="icon gear" title="Application information"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm7.3 3.5a7.7 7.7 0 0 0-.1-1.2l2-1.5-2-3.4-2.4 1a9 9 0 0 0-2-1.2L14.5 3h-5l-.4 2.7a9 9 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.5a7.7 7.7 0 0 0 0 2.4l-2 1.5 2 3.4 2.4-1a9 9 0 0 0 2 1.2l.4 2.7h5l.4-2.7a9 9 0 0 0 2-1.2l2.4 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2Z"/></svg></button></div>
+</header>
+<main>
+<section class="viewer-panel">
+  <div id="dropZone" class="viewport">
+    <div class="drop-hint"><div class="big-icon">⇩</div><h2 id="dropHintTitle">Drop STL here</h2><p id="dropHintText">or click <b>Add Files</b> to browse</p></div>
+    <canvas id="canvas" tabindex="0"></canvas>
+    <div class="view-tools">
+      <button data-action="home" title="Home / Fit"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 10v10h14V10M9 20v-6h6v6"/></svg></button>
+      <button data-action="select" class="active" title="Orbit / Select"><svg viewBox="0 0 24 24"><path d="M5 3l12 9-6 1 4 7-2 1-4-7-4 4V3Z"/></svg></button>
+      <button data-action="rotate" title="Orbit"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M18.5 12A7 7 0 0 0 6.4 7.2L4 10M5.5 12a7 7 0 0 0 12.1 4.8L20 14"/></svg></button>
+      <button data-action="pan" title="Pan"><svg viewBox="0 0 24 24"><path d="M7 11V7a1.5 1.5 0 0 1 3 0v3-5a1.5 1.5 0 0 1 3 0v5-4a1.5 1.5 0 0 1 3 0v5-2a1.5 1.5 0 0 1 3 0v5c0 4-3 7-7 7h-1c-3 0-5-2-6-4l-2-4a1.5 1.5 0 0 1 2.6-1.5L7 13"/></svg></button>
+      <button data-action="zoom" title="Zoom"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M10.5 7v7M7 10.5h7"/></svg></button>
+      <button data-action="fit" title="Fit model"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+      <button data-action="cube" title="Front view"><svg viewBox="0 0 24 24"><path d="m12 2 8 4.5v11L12 22l-8-4.5v-11L12 2Z M4 6.5l8 4.5 8-4.5M12 11v11"/></svg></button>
+    </div>
+    <div class="view-cube" aria-label="View cube" title="Drag the model to rotate; click a cube face for a standard view">
+      <div id="cube3d" class="cube-3d">
+        <button class="cube-face cube-front" data-view="front" aria-label="Front view">FRONT</button>
+        <button class="cube-face cube-back" data-view="back" aria-label="Back view">BACK</button>
+        <button class="cube-face cube-right" data-view="right" aria-label="Right view">RIGHT</button>
+        <button class="cube-face cube-left" data-view="left" aria-label="Left view">LEFT</button>
+        <button class="cube-face cube-top" data-view="top" aria-label="Top view">TOP</button>
+        <button class="cube-face cube-bottom" data-view="bottom" aria-label="Bottom view">BOTTOM</button>
+      </div>
+    </div>
+    <div id="stats" class="stats hidden"></div>
+  </div>
+  <div class="queue"><div class="queue-title">JOB QUEUE (<span id="queueCount">0</span>)</div><div id="queueList" class="queue-list"><div class="empty">No files queued</div></div></div>
+</section>
+<aside><div class="panel"><h3>CONVERSION SETTINGS</h3>
+  <label>Input</label><input id="inputPath" class="input-display" readonly placeholder="No STL selected">
+  <label>Output</label><div class="row"><input id="outputPath" readonly placeholder="Output STEP path"><button id="saveAs">Browse…</button></div>
+  <label>Units</label><div class="radios"><label><input type="radio" name="units" value="mm" checked> Millimeters (mm)</label><label><input type="radio" name="units" value="in"> Inches (in)</label></div>
+  <label class="engine-label">Engine <button id="engineHelp" class="inline-help" title="Explain conversion engines">?</button></label><div class="radios"><label><input type="radio" name="engine" value="trueform" checked> TrueForm <small>best for CAD</small></label><label><input type="radio" name="engine" value="verbatim"> Verbatim <small>exact mesh</small></label></div>
+  <details open><summary>Advanced Options</summary>
+    <div class="grid">
+      <div><label>STEP standard <span class="tip" data-tooltip="Selects the STEP Application Protocol used when writing the file. AP214 is a broadly compatible CAD exchange format. AP242 is newer; AP203 is older and more limited.">i</span></label><select id="schema"><option selected>AP214</option><option>AP242</option><option>AP203</option></select></div>
+      <div><label>Scale <span class="tip" data-tooltip="Extra scale factor applied to every coordinate. 1.0 keeps the original size, 2.0 doubles it and 0.5 halves it.">i</span></label><input id="scale" type="number" step="0.001" value="1"></div>
+      <div><label>Weld Tolerance <span class="tip" data-tooltip="Merges vertices that lie within this distance of each other. Leave empty for automatic/exact handling. Too large a value can change fine geometry.">i</span></label><input id="weld" placeholder="auto"></div>
+      <div><label>Sew Tolerance <span class="tip" data-tooltip="Tolerance used by OpenCASCADE when sewing adjacent faces into shells. Leave empty for automatic selection.">i</span></label><input id="sewTol" placeholder="auto"></div>
+      <div><label>Unify Angle <span class="tip" data-tooltip="Maximum normal-angle difference, in degrees, that can be treated as coplanar during face unification. Lower values preserve more boundaries.">i</span></label><input id="unifyAngle" value="0.001"></div>
+      <div><label>Threads <span class="tip" data-tooltip="Number of worker threads used by parallel conversion stages. Leave empty to let stl2step use the available CPU cores automatically.">i</span></label><input id="threads" type="number" min="1" placeholder="all cores"></div>
+    </div>
+    <div class="checks">
+      <label><input id="noUnify" type="checkbox"> No Unify <span class="tip" data-tooltip="Keeps one face per STL triangle instead of merging coplanar triangles. This usually produces much larger STEP files.">i</span></label>
+      <label><input id="noSolid" type="checkbox"> No Solid <span class="tip" data-tooltip="Skips conversion of closed shells into solids. Use this when you intentionally want shell geometry only.">i</span></label>
+      <label><input id="forceSew" type="checkbox"> Force Sew <span class="tip" data-tooltip="Forces every connected component through the sewing repair pass, even when it appears valid already.">i</span></label>
+      <label><input id="noVerify" type="checkbox"> No Verify <span class="tip" data-tooltip="Skips re-opening the generated STEP file to verify it. Conversion is faster, but you lose the final write/read validation step.">i</span></label>
+      <label><input id="dxf" type="checkbox"> DXF Output <span class="tip" data-tooltip="Also writes DXF slab profiles for supported prismatic parts. Files are placed in a folder next to the STEP output.">i</span></label>
+    </div>
+  </details>
+  <button id="convert" class="convert" disabled><span class="play">▷</span> CONVERT</button>
+  <div id="progressWrap" class="progress-wrap hidden"><div class="progress-top"><span id="status">Ready</span><b id="pct">0%</b></div><div class="progress"><div id="bar"></div></div></div>
+</div></aside>
+</main>
+<footer><div id="result"><span class="dot"></span>Ready</div><div>STL2STEP GUI 0.6.2</div></footer>
+
+<div id="globalTooltip" class="global-tooltip hidden" role="tooltip"></div>
+
+<div id="modal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h2 id="modalTitle">Help</h2><button id="modalClose" aria-label="Close">×</button></div><div id="modalBody" class="modal-body"></div></div></div>
+<script src="renderer.js"></script>
+</body></html>

@@ -1,0 +1,20 @@
+# Node / Electron build output
+node_modules/
+dist/
+*.log
+npm-debug.log*
+
+# Native upstream build tree
+stl2step-source/
+
+# Generated native runtime. Keep only the explanatory README in Git.
+bin/*
+!bin/README.txt
+
+# Local/editor files
+*.bak
+*.tmp
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

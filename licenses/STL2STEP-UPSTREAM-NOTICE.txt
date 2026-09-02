@@ -1,0 +1,8 @@
+BlinkingSun/stl2step
+https://github.com/BlinkingSun/stl2step
+
+The upstream conversion engine is licensed under the MIT License.
+Its official license file is available at:
+https://github.com/BlinkingSun/stl2step/blob/main/LICENSE
+
+This GUI is an independent project and is not the official stl2step user interface.
